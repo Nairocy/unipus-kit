@@ -57,7 +57,7 @@ node src/cli.mjs --help
 # 1. 登录：打开有头浏览器，导出二维码，用手机 App 扫
 unipus login
 
-# 2. 列课程，拿 instanceId（读写课还带 courseResourceId）
+# 2. 列课程，拿 instanceId（同时落盘 state/courses.json）
 unipus courses
 
 # 3. 盘点必修 → state/tasks.json
@@ -132,6 +132,26 @@ unipus transcribe 3
 **提交按钮有两个**
 
 页面里有外层 882px 宽的容器和 100px 宽的真按钮，`innerText` 都是「提 交」。取宽度 < 200 的那个。
+
+## 实测覆盖
+
+下面这些是在真实账号 + 本地 Edge 上跑通的，不是「理论上支持」：
+
+| 环节 | 结果 |
+|---|---|
+| `login` | 导出二维码（自检 `statusDisplay=none` / `srcLen>500` / 可见），扫码后登录态进 profile |
+| `courses` | 返回 2 门课，落盘 `state/courses.json` |
+| `scan` | 视听说课 288 个叶子，每项带 5 段 id 链与可导航 URL |
+| `status` | `required 31 / passed 40 / pendingCount 0`，与平台目录逐项一致 |
+| `open` | 点中目标 tab、抓到填空上下文（带 `___` 占位）与视频直链 |
+| `answer` | 填空注入 → 提交 → `score 100 / correct 2/2 / passed true` |
+| `grade` | 读到 hook 缓冲里的 `judgmentResult` 与逐题 `isRight` |
+
+**未实测**（代码已实现但有边界风险，用前请自测）：
+
+- `sequence` 的 `onSortEnd` 重排（真实页面的 fiber 深度未在本机跑过）
+- `media` 对 `ucontent.cdn.unipus.cn` 的 https 直链下载（只验过 data URL）
+- MCP 客户端端到端（只验了 `initialize` / `tools/list` 协议层与 CLI 链路）
 
 ## 限制
 
