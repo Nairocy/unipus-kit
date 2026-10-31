@@ -183,6 +183,10 @@ function reply(id, result) { return JSON.stringify({ jsonrpc: '2.0', id, result 
 function error(id, code, message) { return JSON.stringify({ jsonrpc: '2.0', id, error: { code, message } }); }
 
 const rl = createInterface({ input: process.stdin, terminal: false });
+let inflight = 0;
+let stdinClosed = false;
+const maybeExit = () => { if (stdinClosed && inflight === 0) process.exit(0); };
+
 rl.on('line', async (line) => {
   const s = line.trim();
   if (!s) return;
@@ -203,8 +207,15 @@ rl.on('line', async (line) => {
       return;
     }
     if (method === 'tools/call') {
-      const r = await callTool(params?.name, params?.arguments || {});
-      process.stdout.write(reply(id, r) + '\n');
+      // 计进行中的请求：stdin 被关掉时（管道喂完就 EOF）不能立即退出，否则工具还没跑完就丢响应
+      inflight++;
+      try {
+        const r = await callTool(params?.name, params?.arguments || {});
+        process.stdout.write(reply(id, r) + '\n');
+      } finally {
+        inflight--;
+        maybeExit();
+      }
       return;
     }
     if (method === 'notifications/initialized' || method === 'initialized') return;
@@ -215,5 +226,5 @@ rl.on('line', async (line) => {
     process.stdout.write(error(id, -32603, e.message) + '\n');
   }
 });
-rl.on('close', () => process.exit(0));
+rl.on('close', () => { stdinClosed = true; maybeExit(); });
 log('MCP server ready (stdio)');
