@@ -1,0 +1,38 @@
+{
+  "name": "unipus-kit",
+  "version": "0.1.0",
+  "description": "U校园（Unipus）课程自动化工具包：必修盘点、全量进度核验、抓题与答案注入、判分反解（CLI + MCP server，零依赖）",
+  "type": "module",
+  "bin": {
+    "unipus": "./src/cli.mjs"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "mcp": "node src/mcp.mjs",
+    "cli": "node src/cli.mjs"
+  },
+  "keywords": [
+    "unipus",
+    "u-campus",
+    "ucontent",
+    "U校园",
+    "automation",
+    "mcp",
+    "cdp",
+    "chrome-devtools-protocol",
+    "courseware"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nairocy/unipus-kit"
+  }
+}

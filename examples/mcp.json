@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "unipus": {
+      "command": "node",
+      "args": ["/absolute/path/to/unipus-kit/src/mcp.mjs"]
+    }
+  }
+}
